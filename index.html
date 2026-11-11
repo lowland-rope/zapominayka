@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Запоминайка</title>
+<style>
+:root{
+  --bg:#f5f4fa;--surface:#fff;--surface-2:#f0eef8;--text:#1e1b2e;--muted:#6b6785;--line:#e2dfee;
+  --accent:#6a4ce0;--accent-soft:#ece7ff;--on-accent:#fff;
+  --ok:#14915a;--ok-bg:#e3f5ec;--bad:#d9434b;--bad-bg:#fcebec;--warn:#c27a0a;--warn-bg:#fdf3e1;
+  --shadow:0 2px 12px rgba(40,30,90,.07);--r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14121c;--surface:#1f1c2b;--surface-2:#282438;--text:#ece9f7;--muted:#a19cba;--line:#353049;
+  --accent:#9a82ff;--accent-soft:#2e2750;--on-accent:#14121c;
+  --ok:#4cd391;--ok-bg:#163327;--bad:#ff7a80;--bad-bg:#3a1c22;--warn:#f2b54a;--warn-bg:#3a2c12;--shadow:0 2px 12px rgba(0,0,0,.35);
+}}
+:root[data-theme="dark"]{
+  --bg:#14121c;--surface:#1f1c2b;--surface-2:#282438;--text:#ece9f7;--muted:#a19cba;--line:#353049;
+  --accent:#9a82ff;--accent-soft:#2e2750;--on-accent:#14121c;
+  --ok:#4cd391;--ok-bg:#163327;--bad:#ff7a80;--bad-bg:#3a1c22;--warn:#f2b54a;--warn-bg:#3a2c12;--shadow:0 2px 12px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent);text-decoration:none}
+header{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+header .in{max-width:960px;margin:auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.logo{font-weight:800;font-size:20px;color:var(--text);display:flex;align-items:center;gap:8px}
+.logo i{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--accent);color:var(--on-accent);font-style:normal}
+header .sp{flex:1}
+main{max-width:960px;margin:auto;padding:20px 16px 80px}
+h1{font-size:28px;margin:4px 0}
+h2{font-size:20px;margin:28px 0 12px}
+h3{margin:0 0 6px;font-size:17px}
+.muted{color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit;font-weight:600;cursor:pointer;transition:.15s;text-align:center}
+.btn:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--bad)}
+.btn.ok{color:var(--ok)} .btn.bad{color:var(--bad)}
+.btn.small{padding:6px 12px;font-size:14px}
+.btn.wide{width:100%;padding:14px}
+.btn small{font-weight:400;opacity:.75}
+.icon{border:0;background:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px 8px;border-radius:8px}
+.icon:hover{background:var(--surface-2);color:var(--text)}
+.icon.on{color:var(--warn)}
+.link{border:0;background:none;color:var(--accent);cursor:pointer;font:inherit;padding:6px 0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.center{text-align:center}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:26px}
+.stat span{color:var(--muted);font-size:14px}
+@media (max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}}
+.fc{display:flex;gap:8px;align-items:flex-end;margin-top:8px}
+.fcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px}
+.fcol i{display:block;width:100%;max-width:44px;background:var(--accent);border-radius:6px 6px 2px 2px;opacity:.85}
+.fcol small{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.tile{display:block;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;color:var(--text);box-shadow:var(--shadow);transition:.15s}
+.tile:hover{border-color:var(--accent);transform:translateY(-2px)}
+.tile p{margin:0 0 10px;color:var(--muted);font-size:14px}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--warn-bg);color:var(--warn)}
+.bar{height:6px;background:var(--surface-2);border-radius:9px;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:9px;transition:width .3s}
+.foot{margin-top:30px}
+.back{display:inline-block;margin-bottom:8px;font-weight:600}
+.sethead{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.sethead p{margin:2px 0}
+.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:18px}
+.mode{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;color:var(--text);box-shadow:var(--shadow);transition:.15s}
+.mode:hover{border-color:var(--accent)}
+.mode .em{font-size:26px}
+.mode b{display:block}
+.mode small{color:var(--muted)}
+.opts{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px;color:var(--muted);font-size:15px}
+select,input[type=text],input[type=number],input:not([type]),textarea{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;outline:none}
+select:focus,input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.list{display:flex;flex-direction:column;gap:8px}
+.li{display:grid;grid-template-columns:1fr 1.4fr auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.li .t{font-weight:600;word-break:break-word}
+.li .d{word-break:break-word}
+.li .st{font-size:12px;color:var(--muted);display:block}
+.li .act{display:flex;align-items:center}
+@media (max-width:600px){.li{grid-template-columns:1fr auto}.li .d{grid-column:1/2}.li .act{grid-row:1/3;grid-column:2}}
+/* editor */
+.ef{display:grid;gap:10px}
+.langs{display:flex;gap:12px;flex-wrap:wrap}
+.langs label{display:flex;flex-direction:column;font-size:14px;color:var(--muted);gap:4px}
+#rows{counter-reset:n;display:flex;flex-direction:column;gap:10px;margin:16px 0}
+.erow{counter-increment:n;display:grid;grid-template-columns:28px 1fr 1fr auto;gap:10px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.erow::before{content:counter(n);color:var(--muted);font-weight:700;padding-top:9px;text-align:center}
+.erow textarea{resize:vertical;min-height:44px;width:100%;display:block}
+.fld{position:relative;min-width:0}
+@media (max-width:600px){.erow{grid-template-columns:1fr auto}.erow::before{display:none}.erow .fdef{grid-column:1/2}.erow .icon{grid-row:1/3;grid-column:2}}
+.sugg{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:10;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:6px;max-height:300px;overflow:auto}
+.sugg .sh{font-size:12px;color:var(--muted);padding:4px 8px 6px;display:flex;justify-content:space-between;gap:8px}
+.sugg .si{padding:8px 10px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.sugg .si small{color:var(--muted);font-size:12px;white-space:nowrap}
+.sugg .si.act,.sugg .si:hover{background:var(--accent-soft)}
+.sugg .load{padding:8px 10px;color:var(--muted);font-size:14px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:16px}
+summary{cursor:pointer;font-weight:600}
+#imp{width:100%;min-height:140px;margin:10px 0;font-family:ui-monospace,Menlo,monospace;font-size:14px}
+.radios{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;margin:6px 0}
+.sticky{position:sticky;bottom:0;padding:12px 0;background:linear-gradient(transparent,var(--bg) 30%)}
+/* study */
+.studyhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.studyhead h2{margin:0;flex:1;font-size:18px}
+.studyhead .back{margin:0}
+#topbar{margin:12px 0 18px}
+#stage{max-width:720px;margin:auto}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:28px;text-align:center;position:relative}
+.card .front{font-size:26px;font-weight:600;word-break:break-word;white-space:pre-wrap}
+.card .backtxt{font-size:22px;word-break:break-word;white-space:pre-wrap}
+.card hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+.card.big{min-height:240px;display:flex;flex-direction:column;justify-content:center}
+.tag{position:absolute;top:12px;left:14px;font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:99px}
+.card .spk{position:absolute;top:8px;right:8px}
+.flip{position:relative;height:320px;perspective:1400px;cursor:pointer;user-select:none}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform .45s ease;display:flex;align-items:center;justify-content:center;padding:28px;font-size:30px;font-weight:600;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:auto;word-break:break-word;white-space:pre-wrap}
+.flip .face.long{font-size:20px;font-weight:500}
+.flip .b{transform:rotateY(180deg)}
+.flip.on .f{transform:rotateY(-180deg)}
+.flip.on .b{transform:rotateY(0)}
+.flip .face small{position:absolute;top:12px;left:16px;font-size:12px;color:var(--muted);font-weight:600}
+.ctrl{display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+.hint{text-align:center;color:var(--muted);font-size:13px;margin-top:12px}
+.grades{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+.grades .btn{flex-direction:column;gap:0;padding:10px 6px}
+.grades .g0{color:var(--bad)} .grades .g1{color:var(--warn)} .grades .g2{color:var(--ok)} .grades .g3{color:var(--accent)}
+.opts4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+@media (max-width:600px){.opts4{grid-template-columns:1fr}}
+.opt{justify-content:flex-start;text-align:left;font-weight:500;padding:14px;white-space:pre-wrap;word-break:break-word}
+kbd{font:12px ui-monospace,monospace;border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--muted);background:var(--surface-2)}
+.right{background:var(--ok-bg)!important;border-color:var(--ok)!important;color:var(--ok)!important}
+.wrong{background:var(--bad-bg)!important;border-color:var(--bad)!important;color:var(--bad)!important}
+.wf{display:flex;gap:8px;margin-top:16px}
+.wf input{flex:1;font-size:18px;padding:12px 14px}
+.fbx{margin-top:14px;padding:12px 14px;border-radius:12px;font-size:16px}
+.fbx.ok{background:var(--ok-bg);color:var(--ok)}
+.fbx.bad{background:var(--bad-bg);color:var(--bad)}
+.fbx.warn{background:var(--warn-bg);color:var(--warn)}
+#fb .row{margin-top:12px}
+.done{text-align:center;padding:30px 10px}
+.done .big{font-size:56px}
+.setup{display:grid;gap:12px;max-width:420px;margin:auto}
+.setup label{display:flex;gap:10px;align-items:center}
+.setup input[type=number]{width:90px}
+.tq{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:12px}
+.tq .qh{font-size:13px;color:var(--muted);margin-bottom:6px}
+.tq .qp{font-size:20px;font-weight:600;margin-bottom:10px;white-space:pre-wrap}
+.tq .qs{font-size:16px;margin-bottom:10px;padding:10px;background:var(--surface-2);border-radius:10px;white-space:pre-wrap}
+.tq label.ch{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border:1px solid var(--line);border-radius:10px;margin-top:6px;cursor:pointer}
+.tq input[type=text]{width:100%}
+.tq .ans{margin-top:8px;font-size:14px}
+.tq.good{border-color:var(--ok)} .tq.badq{border-color:var(--bad)}
+.score{font-size:40px;font-weight:800}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile2{min-height:100px;padding:12px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--text);font:inherit;cursor:pointer;word-break:break-word;transition:.15s;box-shadow:var(--shadow)}
+.tile2.sel{border-color:var(--accent);background:var(--accent-soft)}
+.tile2.err{border-color:var(--bad);background:var(--bad-bg);animation:shake .3s}
+.tile2.gone{visibility:hidden}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:.25s;z-index:20;max-width:calc(100% - 32px)}
+#toast.show{opacity:1;transform:translateX(-50%)}
+.mist{text-align:left;margin-top:16px}
+.mist div{padding:8px 0;border-bottom:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <a class="logo" href="#/"><i>З</i>Запоминайка</a>
+  <span class="sp"></span>
+  <a class="btn small" href="#/new">+ Набор</a>
+  <button class="icon" id="themeBtn" title="Тема оформления">◐</button>
+</div></header>
+<main id="app"></main>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ========== Утилиты ========== */
+const KEY = 'zapominayka-v1';
+const DAY = 864e5, MIN = 1 / 1440;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const dkey = t => { const d = new Date(t); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const startOfDay = t => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+const plural = (n, f) => { const a = Math.abs(n) % 100, b = a % 10; return n + ' ' + (a > 10 && a < 20 ? f[2] : b > 1 && b < 5 ? f[1] : b === 1 ? f[0] : f[2]); };
+const CARDS = ['карточка', 'карточки', 'карточек'];
+const LANGS = [['en-US','Английский'],['ru-RU','Русский'],['de-DE','Немецкий'],['fr-FR','Французский'],['es-ES','Испанский'],['it-IT','Итальянский'],['pt-BR','Португальский'],['zh-CN','Китайский'],['ja-JP','Японский'],['ko-KR','Корейский'],['tr-TR','Турецкий'],['uk-UA','Украинский'],['pl-PL','Польский']];
+
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2200); }
+function download(name, text, type = 'text/plain') { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
+function once(fn) { let done = false; return (...a) => { if (!done) { done = true; fn(...a); } }; }
+
+/* ========== Данные ========== */
+const newSrs = () => ({ ease: 2.5, ivl: 0, reps: 0, due: 0, lapses: 0, seen: false });
+const newCard = (term, def) => ({ id: uid(), term, def, starred: false, srs: newSrs() });
+const DEFAULT_SETTINGS = { front: 'term', starOnly: false, newLimit: 20, theme: 'auto', suggest: true };
+
+function demo() {
+  const w = [['apple','яблоко'],['to remember','запоминать'],['knowledge','знание'],['to improve','улучшать'],['journey','путешествие'],['reliable','надёжный'],['to borrow','одалживать, брать взаймы'],['weather','погода'],['awkward','неловкий'],['to achieve','достигать'],['enough','достаточно'],['to forgive','прощать']];
+  return { sets: [{ id: uid(), title: 'Английский: базовые слова', desc: 'Демо-набор — можно изменить или удалить', langTerm: 'en-US', langDef: 'ru-RU', created: Date.now(), cards: w.map(([a, b]) => newCard(a, b)) }],
+           settings: { ...DEFAULT_SETTINGS }, stats: { days: {} } };
+}
+function load() {
+  try { const d = JSON.parse(localStorage.getItem(KEY)); if (d && Array.isArray(d.sets)) { d.settings = { ...DEFAULT_SETTINGS, ...d.settings }; d.stats = d.stats || { days: {} }; return d; } } catch (e) {}
+  return demo();
+}
+let S = load();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Не удалось сохранить данные в браузере'); } }
+const getSet = id => S.sets.find(s => s.id === id);
+const logReview = () => { const k = dkey(Date.now()); S.stats.days[k] = (S.stats.days[k] || 0) + 1; };
+function calcStreak() { let n = 0, t = Date.now(); if (!S.stats.days[dkey(t)]) t -= DAY; while (S.stats.days[dkey(t)]) { n++; t -= DAY; } return n; }
+
+/* Какая сторона спрашивается */
+const termFirst = () => S.settings.front === 'term';
+const F = it => termFirst() ? it.c.term : it.c.def;
+const B = it => termFirst() ? it.c.def : it.c.term;
+const FL = it => termFirst() ? it.s.langTerm : it.s.langDef;
+const BL = it => termFirst() ? it.s.langDef : it.s.langTerm;
+
+/* ========== Интервальное повторение (модифицированный SM-2) ========== */
+// g: 0 — Снова, 1 — Трудно, 2 — Хорошо, 3 — Легко
+function schedule(srs, g, now = Date.now()) {
+  const s = { ...srs };
+  if (!s.reps) {                       // новая карточка или после ошибки
+    s.ivl = [1 * MIN, 10 * MIN, 1, 4][g];
+    if (g >= 2) s.reps = 1;
+  } else {
+    if (g === 0) { s.lapses = (s.lapses || 0) + 1; s.reps = 0; s.ivl = 10 * MIN; }
+    else if (g === 1) s.ivl = Math.max(1, s.ivl * 1.2);
+    else if (g === 2) s.ivl = Math.max(s.ivl + 1, s.ivl * s.ease);
+    else s.ivl = Math.max(s.ivl + 2, s.ivl * s.ease * 1.3);
+    if (g > 0) s.reps++;
+    s.ease = Math.max(1.3, s.ease + [-0.2, -0.15, 0, 0.15][g]);
+  }
+  s.ivl = Math.min(s.ivl, 3650);
+  if (s.ivl >= 1) { s.ivl = Math.round(s.ivl); s.due = startOfDay(now) + s.ivl * DAY; }  // «через N дней» — с начала того дня
+  else s.due = now + s.ivl * DAY;
+  s.seen = true; s.last = now;
+  return s;
+}
+const preview = srs => [0, 1, 2, 3].map(g => schedule(srs, g).ivl);
+function fmtIvl(d) {
+  if (d < 1 / 24) return Math.max(1, Math.round(d * 1440)) + ' мин';
+  if (d < 1) return Math.round(d * 24) + ' ч';
+  if (d < 31) return Math.round(d) + ' дн';
+  if (d < 365) return (d / 30).toFixed(1).replace('.0', '') + ' мес';
+  return (d / 365).toFixed(1).replace('.0', '') + ' г';
+}
+const isDue = (c, now = Date.now()) => c.srs.seen && c.srs.due <= now;
+const isMastered = c => c.srs.seen && c.srs.ivl >= 21;
+
+/* ========== Проверка письменных ответов ========== */
+const norm = s => String(s).toLowerCase().replace(/ё/g, 'е').replace(/\([^)]*\)/g, ' ').replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
+function lev(a, b) {
+  const m = a.length, n = b.length; let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) { const cur = [i]; for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); prev = cur; }
+  return prev[n];
+}
+// 'right' | 'almost' | 'wrong'
+function check(input, correct) {
+  const a = norm(input); if (!a) return 'wrong';
+  const variants = [correct, ...String(correct).split(/[,;\/]/)].map(norm).filter(Boolean);
+  if (variants.includes(a)) return 'right';
+  for (const v of variants) { const d = lev(a, v); if ((v.length > 4 && d <= 1) || (v.length > 9 && d <= 2)) return 'almost'; }
+  return 'wrong';
+}
+
+/* ========== Озвучка ========== */
+function speak(text, lang) {
+  if (!('speechSynthesis' in window)) return toast('Браузер не поддерживает озвучку');
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text); u.lang = lang || 'en-US';
+  const vs = speechSynthesis.getVoices();
+  const v = vs.find(v => v.lang.replace('_', '-') === u.lang) || vs.find(v => v.lang.startsWith(u.lang.slice(0, 2)));
+  if (v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+function speakCard(sid, cid, side) { const s = getSet(sid), c = s?.cards.find(c => c.id === cid); if (c) speak(side === 'term' ? c.term : c.def, side === 'term' ? s.langTerm : s.langDef); }
+
+/* ========== Роутинг и общее ========== */
+const app = $('#app');
+let stage, keyHandler = null, timers = [];
+function later(fn, ms) { const t = setTimeout(fn, ms); timers.push(t); return t; }
+function cleanup() { keyHandler = null; timers.forEach(t => { clearTimeout(t); clearInterval(t); }); timers = []; if ('speechSynthesis' in window) speechSynthesis.cancel(); }
+document.addEventListener('keydown', e => {
+  if (!keyHandler || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.matches('input,textarea,select')) return;
+  keyHandler(e);
+});
+const routes = [
+  [/^#?\/?$/, home],
+  [/^#\/set\/(\w+)$/, viewSet],
+  [/^#\/edit\/(\w+)$/, editSet],
+  [/^#\/new$/, () => editSet(null)],
+  [/^#\/study\/(\w+)\/(\w+)$/, study],
+];
+function router() {
+  cleanup();
+  const h = location.hash || '#/';
+  for (const [re, fn] of routes) { const m = h.match(re); if (m) { fn(...m.slice(1)); window.scrollTo(0, 0); return; } }
+  home();
+}
+window.addEventListener('hashchange', router);
+function notFound() { app.innerHTML = `<div class="panel center"><h2>Набор не найден</h2><a class="btn" href="#/">На главную</a></div>`; }
+function setOpt(k, v) { S.settings[k] = v; save(); }
+
+/* Тема */
+function applyTheme() { const t = S.settings.theme; if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = t; $('#themeBtn').title = 'Тема: ' + ({ auto: 'как в системе', light: 'светлая', dark: 'тёмная' })[t]; }
+$('#themeBtn').onclick = () => { const o = ['auto', 'light', 'dark']; S.settings.theme = o[(o.indexOf(S.settings.theme) + 1) % 3]; save(); applyTheme(); toast($('#themeBtn').title); };
+
+/* ========== Главная ========== */
+function home() {
+  const now = Date.now(); let due = 0, nw = 0;
+  S.sets.forEach(s => s.cards.forEach(c => { if (!c.srs.seen) nw++; else if (c.srs.due <= now) due++; }));
+  const todo = due + Math.min(nw, S.settings.newLimit);
+  app.innerHTML = `
+    <div class="stats">
+      <div class="stat"><b>${due}</b><span>к повторению</span></div>
+      <div class="stat"><b>${nw}</b><span>новых карточек</span></div>
+      <div class="stat"><b>${S.stats.days[dkey(now)] || 0}</b><span>ответов сегодня</span></div>
+      <div class="stat"><b>${calcStreak()} 🔥</b><span>дней подряд</span></div>
+    </div>
+    <div class="row">
+      ${todo ? `<a class="btn primary" href="#/study/all/srs">🧠 Повторить всё (${todo})</a>` : `<span class="muted">✓ На сегодня всё повторено</span>`}
+      <a class="btn" href="#/new">+ Новый набор</a>
+    </div>
+    ${forecastHtml()}
+    <h2>Мои наборы</h2>
+    <div class="grid">${S.sets.map(setTile).join('') || '<p class="muted">Пока нет наборов — создайте первый.</p>'}</div>
+    <div class="row foot">
+      <button class="btn small" onclick="exportAll()">⬇ Резервная копия</button>
+      <label class="btn small">⬆ Восстановить из копии<input type="file" accept=".json,application/json" hidden onchange="importAll(this)"></label>
+      <label class="muted" style="font-size:14px">Новых карточек в день:
+        <input type="number" min="1" max="500" value="${S.settings.newLimit}" style="width:80px;padding:5px 8px" onchange="setOpt('newLimit', Math.max(1, +this.value || 20))"></label>
+    </div>`;
+}
+function forecastHtml() {
+  const base = startOfDay(Date.now()), counts = Array(7).fill(0); let any = false;
+  S.sets.forEach(s => s.cards.forEach(c => { if (!c.srs.seen) return; any = true; const d = Math.max(0, Math.floor((c.srs.due - base) / DAY)); if (d < 7) counts[d]++; }));
+  if (!any) return '';
+  const mx = Math.max(1, ...counts);
+  return `<h2>Прогноз повторений</h2><div class="panel"><div class="fc">${counts.map((n, i) => `
+    <div class="fcol"><span>${n}</span><i style="height:${Math.round(n / mx * 70) + 3}px"></i>
+    <small>${i === 0 ? 'Сегодня' : i === 1 ? 'Завтра' : new Date(base + i * DAY + 3600e3).toLocaleDateString('ru', { weekday: 'short' })}</small></div>`).join('')}</div></div>`;
+}
+function setTile(s) {
+  const now = Date.now(), due = s.cards.filter(c => isDue(c, now)).length;
+  const m = s.cards.length ? Math.round(s.cards.filter(isMastered).length / s.cards.length * 100) : 0;
+  return `<a class="tile" href="#/set/${s.id}"><h3>${esc(s.title)}</h3><p>${plural(s.cards.length, CARDS)} · освоено ${m}%</p>
+    ${due ? `<span class="badge">${due} к повторению</span>` : ''}<div class="bar"><i style="width:${m}%"></i></div></a>`;
+}
+
+/* ========== Страница набора ========== */
+function cardStatus(c) {
+  const now = Date.now();
+  if (!c.srs.seen) return 'новая';
+  if (c.srs.due <= now) return '<span style="color:var(--warn)">пора повторить</span>';
+  return 'повтор через ' + fmtIvl((c.srs.due - now) / DAY);
+}
+function viewSet(id) {
+  const s = getSet(id); if (!s) return notFound();
+  const now = Date.now(), due = s.cards.filter(c => isDue(c, now)).length, nw = s.cards.filter(c => !c.srs.seen).length;
+  const mode = (m, em, t, sub) => `<a class="mode" href="#/study/${s.id}/${m}"><span class="em">${em}</span><span><b>${t}</b><small>${sub}</small></span></a>`;
+  app.innerHTML = `
+    <a class="back" href="#/">← Все наборы</a>
+    <div class="sethead">
+      <div><h1>${esc(s.title)}</h1>${s.desc ? `<p class="muted">${esc(s.desc)}</p>` : ''}
+      <p class="muted">${plural(s.cards.length, CARDS)} · новых ${nw} · к повторению ${due}</p></div>
+      <div class="row">
+        <a class="btn small" href="#/edit/${s.id}">✎ Редактировать</a>
+        <button class="btn small" onclick="exportSet('${s.id}')">⬇ Экспорт</button>
+        <button class="btn small danger" onclick="delSet('${s.id}')">Удалить</button>
+      </div>
+    </div>
+    <div class="modes">
+      ${mode('srs', '🧠', 'Интервальное повторение', due + nw ? `${due} повторить · ${Math.min(nw, S.settings.newLimit)} новых` : 'На сегодня всё ✓')}
+      ${mode('cards', '🃏', 'Карточки', 'Листайте и переворачивайте')}
+      ${mode('learn', '🎯', 'Заучивание', 'Варианты + письмо до освоения')}
+      ${mode('write', '⌨️', 'Письмо', 'Вводите ответ сами')}
+      ${mode('test', '📝', 'Тест', 'Проверка с оценкой')}
+      ${mode('match', '⚡', 'Подбор пар', 'Игра на скорость')}
+    </div>
+    <div class="opts">
+      <label>Спрашивать: <select onchange="setOpt('front', this.value)">
+        <option value="term" ${termFirst() ? 'selected' : ''}>термин → определение</option>
+        <option value="def" ${termFirst() ? '' : 'selected'}>определение → термин</option></select></label>
+      <label><input type="checkbox" ${S.settings.starOnly ? 'checked' : ''} onchange="setOpt('starOnly', this.checked)"> Только ★ избранные (кроме интервального повторения)</label>
+    </div>
+    <h2>Термины (${s.cards.length})</h2>
+    <div class="list">${s.cards.map(c => `
+      <div class="li">
+        <div class="t">${esc(c.term)}<span class="st">${cardStatus(c)}</span></div>
+        <div class="d">${esc(c.def)}</div>
+        <div class="act">
+          <button class="icon" title="Озвучить" onclick="speakCard('${s.id}','${c.id}','term')">🔊</button>
+          <button class="icon ${c.starred ? 'on' : ''}" title="Избранное" onclick="toggleStar('${s.id}','${c.id}',this)">${c.starred ? '★' : '☆'}</button>
+        </div>
+      </div>`).join('')}</div>`;
+}
+function toggleStar(sid, cid, btn) {
+  const c = getSet(sid)?.cards.find(c => c.id === cid); if (!c) return;
+  c.starred = !c.starred; save();
+  if (btn) { btn.classList.toggle('on', c.starred); btn.innerHTML = btn.innerHTML.replace(/[★☆]/, c.starred ? '★' : '☆'); }
+}
+function delSet(id) {
+  const s = getSet(id); if (!s || !confirm(`Удалить набор «${s.title}»? Это нельзя отменить.`)) return;
+  S.sets = S.sets.filter(x => x.id !== id); save(); location.hash = '#/';
+}
+function exportSet(id) { const s = getSet(id); download(s.title.replace(/[\\/:*?"<>|]/g, '_') + '.txt', s.cards.map(c => c.term.replace(/\s+/g, ' ') + '\t' + c.def.replace(/\s+/g, ' ')).join('\n')); }
+function exportAll() { download('zapominayka-backup-' + dkey(Date.now()) + '.json', JSON.stringify(S, null, 1), 'application/json'); }
+function importAll(input) {
+  const f = input.files[0]; if (!f) return;
+  f.text().then(t => {
+    const d = JSON.parse(t);
+    if (!d || !Array.isArray(d.sets)) throw 0;
+    if (!confirm('Заменить все текущие данные содержимым резервной копии?')) return;
+    S = { sets: d.sets, settings: { ...DEFAULT_SETTINGS, ...d.settings }, stats: d.stats || { days: {} } };
+    save(); applyTheme(); router(); toast('Данные восстановлены');
+  }).catch(() => toast('Это не похоже на файл резервной копии'));
+}
+
+/* ========== Редактор ========== */
+function editRow(c = {}) {
+  return `<div class="erow" data-id="${c.id || ''}">
+    <div class="fld fterm"><textarea class="eterm" rows="1" placeholder="Термин">${esc(c.term || '')}</textarea></div>
+    <div class="fld fdef"><textarea class="edef" rows="1" placeholder="Определение">${esc(c.def || '')}</textarea></div>
+    <button class="icon" type="button" title="Удалить карточку" onclick="this.parentElement.remove()">✕</button></div>`;
+}
+function editSet(id) {
+  const s = id ? getSet(id) : { title: '', desc: '', langTerm: 'en-US', langDef: 'ru-RU', cards: [] };
+  if (!s) return notFound();
+  const lopts = v => LANGS.map(([k, n]) => `<option value="${k}" ${k === v ? 'selected' : ''}>${n}</option>`).join('');
+  app.innerHTML = `
+    <a class="back" href="${id ? '#/set/' + id : '#/'}">← Отмена</a>
+    <h1>${id ? 'Редактирование набора' : 'Новый набор'}</h1>
+    <div class="ef">
+      <input id="eTitle" placeholder="Название, например «Испанский: еда»" value="${esc(s.title)}">
+      <textarea id="eDesc" rows="2" placeholder="Описание (необязательно)">${esc(s.desc)}</textarea>
+      <div class="langs">
+        <label>Язык терминов (для озвучки)<select id="eLT">${lopts(s.langTerm)}</select></label>
+        <label>Язык определений<select id="eLD">${lopts(s.langDef)}</select></label>
+      </div>
+      <label class="muted" style="font-size:14px"><input type="checkbox" ${S.settings.suggest ? 'checked' : ''} onchange="setOpt('suggest', this.checked); hideSugg()">
+        Подсказки слов и автоперевод (нужен интернет; слова отправляются в Google Переводчик / Datamuse)</label>
+    </div>
+    <div id="rows">${(s.cards.length ? s.cards : [{}, {}, {}]).map(editRow).join('')}</div>
+    <div class="row" style="margin-bottom:16px"><button class="btn" onclick="addRow(true)">+ Добавить карточку</button></div>
+    <details>
+      <summary>Импорт списком (из таблицы, Quizlet, Anki, заметок)</summary>
+      <p class="muted" style="font-size:14px;margin:8px 0 0">Каждая карточка — с новой строки, термин и определение разделены выбранным символом.</p>
+      <textarea id="imp" placeholder="apple&#9;яблоко&#10;dog&#9;собака"></textarea>
+      <div class="radios">Между термином и определением:
+        <label><input type="radio" name="sep" value="tab" checked> Tab</label>
+        <label><input type="radio" name="sep" value="dash"> « - »</label>
+        <label><input type="radio" name="sep" value="comma"> Запятая</label>
+        <label><input type="radio" name="sep" value="semi"> ;</label>
+        <label><input type="radio" name="sep" value="eq"> =</label>
+        <label><input type="radio" name="sep" value="custom"> Свой: <input id="sepC" style="width:60px;padding:3px 6px"></label>
+      </div>
+      <div class="radios">Между карточками:
+        <label><input type="radio" name="csep" value="nl" checked> Новая строка</label>
+        <label><input type="radio" name="csep" value="semi"> ;</label>
+      </div>
+      <button class="btn" onclick="doImport()">Добавить в набор</button>
+    </details>
+    <div class="sticky"><button class="btn primary wide" onclick="saveSet('${id || ''}')">Сохранить набор</button></div>`;
+  // Tab в последнем поле определения добавляет новую строку
+  $('#rows').addEventListener('keydown', e => {
+    if (e.key === 'Tab' && !e.shiftKey && !(SG.box && SG.idx >= 0) && e.target.classList.contains('edef') && e.target.closest('.erow') === $('#rows').lastElementChild) { e.preventDefault(); addRow(true); }
+  });
+  bindSuggest($('#rows'));
+  if (!id) $('#eTitle').focus();
+}
+
+/* ========== Подсказки и автоперевод ========== */
+const gl = code => code === 'zh-CN' ? 'zh-CN' : code.slice(0, 2);   // ru-RU → ru
+const cacheTr = new Map(), cacheSug = new Map();
+let SG = { box: null, items: [], idx: -1, ta: null, pick: null }, sugTimer = 0, sugToken = 0;
+
+function hideSugg() { SG.box?.remove(); SG = { box: null, items: [], idx: -1, ta: null, pick: null }; }
+function showSugg(ta, title, items, pick) {
+  hideSugg();
+  if (!items || (Array.isArray(items) && !items.length)) return;
+  const box = document.createElement('div'); box.className = 'sugg';
+  SG = { box, items: Array.isArray(items) ? items : [], idx: -1, ta, pick };
+  box.innerHTML = `<div class="sh"><span>${title}</span>${Array.isArray(items) && ta.classList.contains('edef') ? '<span>Shift+клик — добавить через запятую</span>' : ''}</div>`
+    + (items === 'loading' ? '<div class="load">Ищу варианты…</div>' : SG.items.map((x, i) => `<div class="si" data-i="${i}"><span>${esc(x.text)}</span>${x.note ? `<small>${esc(x.note)}</small>` : ''}</div>`).join(''));
+  box.addEventListener('mousedown', e => {           // mousedown, чтобы поле не теряло фокус
+    e.preventDefault();
+    const si = e.target.closest('.si'); if (si) choose(+si.dataset.i, e.shiftKey);
+  });
+  ta.parentElement.appendChild(box);
+}
+function moveSugg(d) {
+  if (!SG.items.length) return;
+  SG.idx = (SG.idx + d + SG.items.length) % SG.items.length;
+  $$('.si', SG.box).forEach((el, i) => el.classList.toggle('act', i === SG.idx));
+  $$('.si', SG.box)[SG.idx].scrollIntoView({ block: 'nearest' });
+}
+function choose(i, append) { const it = SG.items[i], pick = SG.pick, ta = SG.ta; if (!it) return; hideSugg(); pick(it.text, append, ta); }
+
+// Подсказки терминов: ваши наборы + словарь Datamuse (для английского)
+async function suggestTerms(q, lang) {
+  const key = lang + '|' + q.toLowerCase();
+  if (cacheSug.has(key)) return cacheSug.get(key);
+  const lq = q.toLowerCase(), seen = new Set([lq]), out = [];
+  S.sets.forEach(s => s.cards.forEach(c => {
+    const t = c.term.trim();
+    if (out.length < 3 && t.toLowerCase().startsWith(lq) && !seen.has(t.toLowerCase())) { seen.add(t.toLowerCase()); out.push({ text: t, note: 'из ваших наборов' }); }
+  }));
+  if (lang.startsWith('en')) {
+    try {
+      const r = await fetch('https://api.datamuse.com/sug?max=8&s=' + encodeURIComponent(q)).then(r => r.json());
+      r.forEach(w => { if (!seen.has(w.word.toLowerCase())) { seen.add(w.word.toLowerCase()); out.push({ text: w.word }); } });
+    } catch (e) {}
+  }
+  const res = out.slice(0, 7); cacheSug.set(key, res); return res;
+}
+// Варианты перевода: Google Переводчик (со словарными значениями), запасной — MyMemory
+async function translate(text, sl, tl) {
+  const key = sl + '|' + tl + '|' + text.toLowerCase();
+  if (cacheTr.has(key)) return cacheTr.get(key);
+  const out = [], seen = new Set();
+  const add = (t, note) => { t = String(t || '').trim(); const k = t.toLowerCase(); if (t && !seen.has(k) && k !== text.toLowerCase()) { seen.add(k); out.push({ text: t, note }); } };
+  try {
+    const d = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&hl=ru&dt=t&dt=bd&q=${encodeURIComponent(text)}`).then(r => r.json());
+    add((d[0] || []).map(x => x[0]).join(''), 'перевод');
+    (d[1] || []).forEach(([pos, words]) => (words || []).slice(0, 4).forEach(w => add(w, pos)));
+  } catch (e) {
+    try {
+      const m = await fetch(`https://api.mymemory.translated.net/get?langpair=${sl}|${tl}&q=${encodeURIComponent(text)}`).then(r => r.json());
+      add(m.responseData?.translatedText, 'перевод');
+      (m.matches || []).forEach(x => add(x.translation));
+    } catch (e2) {}
+  }
+  const res = out.slice(0, 10);
+  if (res.length) cacheTr.set(key, res);
+  return res;
+}
+
+function bindSuggest(root) {
+  const rowOf = ta => ta.closest('.erow');
+  async function termSugg(ta) {
+    const q = ta.value.trim(), tok = ++sugToken;
+    if (!S.settings.suggest || q.length < 2 || q.includes('\n')) return hideSugg();
+    const items = await suggestTerms(q, $('#eLT').value);
+    if (tok !== sugToken || document.activeElement !== ta) return;
+    showSugg(ta, 'Подсказки', items, (text, _, t) => {
+      t.value = text; t.dispatchEvent(new Event('change'));
+      $('.edef', rowOf(t)).focus();                // фокус на определение → покажутся переводы
+    });
+  }
+  async function defSugg(ta, typing = false) {
+    const term = $('.eterm', rowOf(ta)).value.trim(), tok = ++sugToken;
+    const sl = gl($('#eLT').value), tl = gl($('#eLD').value);
+    if (!S.settings.suggest || !term || sl === tl) return hideSugg();
+    // То же слово уже есть в другом наборе — предложим его определение
+    const local = [];
+    S.sets.forEach(s => s.cards.forEach(c => { if (c.term.trim().toLowerCase() === term.toLowerCase() && c.def && !local.some(x => x.text === c.def)) local.push({ text: c.def, note: 'из ваших наборов' }); }));
+    if (!cacheTr.has(sl + '|' + tl + '|' + term.toLowerCase())) showSugg(ta, 'Варианты определения', local.length ? local : 'loading', pickDef);
+    const tr = await translate(term, sl, tl);
+    if (tok !== sugToken || document.activeElement !== ta) return;
+    const all = [...local, ...tr.filter(x => !local.some(l => l.text.toLowerCase() === x.text.toLowerCase()))];
+    const v = ta.value.trim().toLowerCase();
+    const used = v.split(/\s*[,;]\s*/);
+    // при наборе текста — фильтруем; при фокусе — показываем всё, кроме уже вписанных вариантов
+    const items = typing && v ? all.filter(x => x.text.toLowerCase().includes(v) && x.text.toLowerCase() !== v)
+                              : all.filter(x => !used.includes(x.text.toLowerCase()));
+    if (items.length) showSugg(ta, 'Варианты определения', items, pickDef); else hideSugg();
+  }
+  function pickDef(text, append, ta) {
+    ta.value = append && ta.value.trim() ? ta.value.trim().replace(/[,;]\s*$/, '') + ', ' + text : text;
+    ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
+  }
+  root.addEventListener('input', e => {
+    const ta = e.target; if (ta.tagName !== 'TEXTAREA') return;
+    clearTimeout(sugTimer);
+    sugTimer = setTimeout(() => ta.classList.contains('eterm') ? termSugg(ta) : defSugg(ta, true), ta.classList.contains('eterm') ? 250 : 150);
+  });
+  root.addEventListener('focusin', e => { if (e.target.classList.contains('edef')) defSugg(e.target); });
+  root.addEventListener('focusout', e => { if (SG.ta === e.target) { sugToken++; hideSugg(); } });
+  root.addEventListener('keydown', e => {
+    if (!SG.box || SG.ta !== e.target) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); moveSugg(1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); moveSugg(-1); }
+    else if (e.key === 'Escape') { e.preventDefault(); sugToken++; hideSugg(); }
+    else if ((e.key === 'Enter' || e.key === 'Tab') && SG.idx >= 0) { e.preventDefault(); e.stopImmediatePropagation(); choose(SG.idx, false); }
+  });
+}
+function addRow(focus) { $('#rows').insertAdjacentHTML('beforeend', editRow()); if (focus) $('#rows').lastElementChild.querySelector('.eterm').focus(); }
+function doImport() {
+  const txt = $('#imp').value; if (!txt.trim()) return toast('Вставьте текст для импорта');
+  let sep = $('input[name=sep]:checked').value;
+  sep = sep === 'custom' ? ($('#sepC').value || '\t') : { tab: '\t', dash: ' - ', comma: ',', semi: ';', eq: '=' }[sep];
+  const csep = $('input[name=csep]:checked').value;
+  const chunks = (csep === 'semi' ? txt.split(';') : txt.split(/\r?\n/)).map(x => x.trim()).filter(Boolean);
+  if (sep === ' - ') sep = /\s+[-–—]\s+/;
+  const pairs = chunks.map(ch => {
+    let i, len;
+    if (sep instanceof RegExp) { const m = ch.match(sep); i = m ? m.index : -1; len = m ? m[0].length : 0; } else { i = ch.indexOf(sep); len = sep.length; }
+    return i < 0 ? [ch, ''] : [ch.slice(0, i).trim(), ch.slice(i + len).trim()];
+  });
+  $$('.erow').forEach(r => { if (!$('.eterm', r).value.trim() && !$('.edef', r).value.trim()) r.remove(); });
+  $('#rows').insertAdjacentHTML('beforeend', pairs.map(([term, def]) => editRow({ term, def })).join(''));
+  $('#imp').value = ''; toast('Добавлено: ' + plural(pairs.length, CARDS));
+}
+function saveSet(id) {
+  const old = id ? getSet(id) : null;
+  const byId = new Map((old?.cards || []).map(c => [c.id, c]));
+  const cards = $$('.erow').map(r => {
+    const term = $('.eterm', r).value.trim(), def = $('.edef', r).value.trim();
+    if (!term && !def) return null;
+    const ex = byId.get(r.dataset.id);
+    if (ex) { ex.term = term; ex.def = def; return ex; }
+    return newCard(term, def);
+  }).filter(Boolean);
+  if (!cards.length) return toast('Добавьте хотя бы одну карточку');
+  const data = { title: $('#eTitle').value.trim() || 'Без названия', desc: $('#eDesc').value.trim(), langTerm: $('#eLT').value, langDef: $('#eLD').value, cards };
+  let s = old;
+  if (s) Object.assign(s, data); else { s = { id: uid(), created: Date.now(), ...data }; S.sets.unshift(s); }
+  save(); toast('Сохранено'); location.hash = '#/set/' + s.id;
+}
+
+/* ========== Режимы обучения ========== */
+const TITLES = { srs: 'Интервальное повторение', cards: 'Карточки', learn: 'Заучивание', write: 'Письмо', test: 'Тест', match: 'Подбор пар' };
+let backHref = '#/';
+function study(id, mode) {
+  let items;
+  if (id === 'all') { items = []; S.sets.forEach(s => s.cards.forEach(c => items.push({ s, c }))); }
+  else {
+    const s = getSet(id); if (!s) return notFound();
+    let cs = s.cards;
+    if (S.settings.starOnly && mode !== 'srs') { const st = cs.filter(c => c.starred); if (st.length) cs = st; else toast('Нет избранных — показываю все карточки'); }
+    items = cs.map(c => ({ s, c }));
+  }
+  backHref = id === 'all' ? '#/' : '#/set/' + id;
+  const runner = { srs: runSrs, cards: runCards, learn: runLearn, write: runWrite, test: runTest, match: runMatch }[mode];
+  if (!runner) return notFound();
+  const name = id === 'all' ? 'все наборы' : getSet(id).title;
+  app.innerHTML = `
+    <div class="studyhead"><a class="back" href="${backHref}">← Назад</a><h2>${TITLES[mode]} · <span class="muted">${esc(name)}</span></h2><span id="prog" class="muted"></span></div>
+    <div class="bar" id="topbar"><i id="barfill" style="width:0"></i></div>
+    <div id="stage"></div>`;
+  stage = $('#stage');
+  if (!items.length) { stage.innerHTML = `<div class="panel center">В наборе нет карточек.</div>`; return; }
+  runner(items, id);
+}
+const setBar = f => { const b = $('#barfill'); if (b) b.style.width = Math.round(Math.max(0, Math.min(1, f)) * 100) + '%'; };
+const setProg = t => { const p = $('#prog'); if (p) p.textContent = t; };
+const doneScreen = (emoji, title, body, buttons) => { keyHandler = null; stage.innerHTML = `<div class="panel done"><div class="big">${emoji}</div><h2>${title}</h2>${body}<div class="row" style="justify-content:center;margin-top:16px">${buttons}</div></div>`; };
+
+/* --- 1. Интервальное повторение --- */
+function runSrs(items) {
+  const now = Date.now();
+  const due = items.filter(x => isDue(x.c, now)).sort((a, b) => a.c.srs.due - b.c.srs.due);
+  const nw = shuffle(items.filter(x => !x.c.srs.seen)).slice(0, S.settings.newLimit);
+  const q = [...due, ...nw]; const total = q.length; let answered = 0, shown = false;
+  if (!q.length) {
+    const next = items.filter(x => x.c.srs.seen).map(x => x.c.srs.due).sort((a, b) => a - b)[0];
+    return doneScreen('✅', 'Повторять пока нечего', `<p class="muted">${next ? 'Следующее повторение через ' + fmtIvl((next - now) / DAY) + '.' : ''} Можно потренироваться в других режимах.</p>`, `<a class="btn primary" href="${backHref}">Готово</a>`);
+  }
+  function render() {
+    if (!q.length) return doneScreen('🎉', 'На сегодня всё!', `<p class="muted">Ответов: ${answered}. Возвращайтесь завтра — интервалы рассчитаны.</p>`, `<a class="btn primary" href="${backHref}">Готово</a>`);
+    const it = q[0], pv = preview(it.c.srs);
+    setProg('Осталось: ' + q.length); setBar(1 - q.length / Math.max(total, q.length));
+    stage.innerHTML = `
+      <div class="card big">${!it.c.srs.seen ? '<span class="tag">новая</span>' : it.c.srs.reps === 0 ? '<span class="tag">повтор ошибки</span>' : ''}
+        <button class="icon spk" id="spk" title="Озвучить">🔊</button>
+        <div class="front">${esc(F(it))}</div>
+        ${shown ? `<hr><div class="backtxt">${esc(B(it))}</div>` : ''}
+      </div>
+      ${shown ? `<div class="grades">${['Снова', 'Трудно', 'Хорошо', 'Легко'].map((l, g) => `<button class="btn g${g}" data-g="${g}"><b>${l}</b><small>${fmtIvl(pv[g])}</small></button>`).join('')}</div>
+        <p class="hint">Клавиши 1–4 · насколько легко вы вспомнили ответ?</p>`
+      : `<div style="margin-top:16px"><button class="btn primary wide" id="show">Показать ответ <small>(пробел)</small></button></div>`}`;
+    $('#spk').onclick = () => shown ? speak(B(it), BL(it)) : speak(F(it), FL(it));
+    if (shown) $$('.grades .btn').forEach(b => b.onclick = () => grade(+b.dataset.g));
+    else $('#show').onclick = reveal;
+    keyHandler = e => {
+      if (!shown && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); reveal(); }
+      else if (shown && /^[1-4]$/.test(e.key)) grade(+e.key - 1);
+      else if (shown && e.key === ' ') { e.preventDefault(); grade(2); }
+    };
+  }
+  function reveal() { shown = true; render(); }
+  function grade(g) {
+    const it = q.shift(); it.c.srs = schedule(it.c.srs, g); answered++; logReview(); save();
+    if (it.c.srs.ivl < 1) q.splice(Math.min(q.length, g === 0 ? 3 : 6), 0, it);   // вернётся в этой же сессии
+    shown = false; render();
+  }
+  render();
+}
+
+/* --- 2. Карточки --- */
+function runCards(items) {
+  let deck = [...items], i = 0, flip = false, res = {};
+  function render() {
+    if (i >= deck.length) return summary();
+    const it = deck[i], f = F(it), b = B(it);
+    flip = false; setProg(`${i + 1} / ${deck.length}`); setBar(i / deck.length);
+    stage.innerHTML = `
+      <div class="flip" id="fc">
+        <div class="face f ${f.length > 70 ? 'long' : ''}"><small>${termFirst() ? 'Термин' : 'Определение'}</small>${esc(f)}</div>
+        <div class="face b ${b.length > 70 ? 'long' : ''}"><small>${termFirst() ? 'Определение' : 'Термин'}</small>${esc(b)}</div>
+      </div>
+      <div class="ctrl">
+        <button class="btn" id="prev" ${i ? '' : 'disabled'} title="Назад">←</button>
+        <button class="btn bad" id="no">✕ Ещё учу</button>
+        <button class="btn ok" id="yes">✓ Знаю</button>
+        <button class="btn" id="nxt" title="Пропустить">→</button>
+      </div>
+      <div class="ctrl">
+        <button class="btn small" id="shuf">🔀 Перемешать</button>
+        <button class="btn small" id="spk">🔊 Озвучить</button>
+        <button class="btn small" id="star">${it.c.starred ? '★' : '☆'} Избранное</button>
+      </div>
+      <p class="hint">Клик или пробел — перевернуть · ← → — листать · 1 — ещё учу · 2 — знаю</p>`;
+    const doFlip = () => { flip = !flip; $('#fc').classList.toggle('on', flip); };
+    const mark = k => { res[it.c.id] = k; i++; render(); };
+    $('#fc').onclick = doFlip;
+    $('#prev').onclick = () => { if (i) { i--; render(); } };
+    $('#nxt').onclick = () => { i++; render(); };
+    $('#no').onclick = () => mark(false);
+    $('#yes').onclick = () => mark(true);
+    $('#shuf').onclick = () => { deck = [...deck.slice(0, i), ...shuffle(deck.slice(i))]; render(); toast('Оставшиеся карточки перемешаны'); };
+    $('#spk').onclick = () => flip ? speak(B(it), BL(it)) : speak(F(it), FL(it));
+    $('#star').onclick = e => toggleStar(it.s.id, it.c.id, e.currentTarget);
+    keyHandler = e => {
+      if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); doFlip(); }
+      else if (e.key === 'ArrowLeft') $('#prev').click();
+      else if (e.key === 'ArrowRight') $('#nxt').click();
+      else if (e.key === '1') mark(false);
+      else if (e.key === '2') mark(true);
+    };
+  }
+  function summary() {
+    setBar(1); setProg('');
+    const known = deck.filter(x => res[x.c.id] === true), unk = deck.filter(x => res[x.c.id] === false);
+    doneScreen('🃏', 'Колода пройдена', `<p>Знаю: <b style="color:var(--ok)">${known.length}</b> · Ещё учу: <b style="color:var(--bad)">${unk.length}</b></p>`,
+      `${unk.length ? '<button class="btn primary" id="again">Повторить невыученные (' + unk.length + ')</button>' : ''}<button class="btn" id="restart">Начать заново</button><a class="btn" href="${backHref}">К набору</a>`);
+    if (unk.length) $('#again').onclick = () => { deck = unk; i = 0; res = {}; render(); };
+    $('#restart').onclick = () => { deck = [...items]; i = 0; res = {}; render(); };
+  }
+  render();
+}
+
+/* --- Общие типы вопросов --- */
+function mcOptions(it, items) {
+  const correct = B(it);
+  const others = shuffle([...new Set(items.map(B))].filter(x => x !== correct)).slice(0, 3);
+  return shuffle([correct, ...others]);
+}
+function askMC(it, items, cb) {
+  const opts = mcOptions(it, items), correct = B(it); let done = false;
+  stage.innerHTML = `
+    <div class="card"><small class="muted">Выберите правильный ответ</small><button class="icon spk" id="spk">🔊</button><div class="front" style="margin-top:6px">${esc(F(it))}</div></div>
+    <div class="opts4">${opts.map((o, k) => `<button class="btn opt" data-k="${k}"><kbd>${k + 1}</kbd> ${esc(o)}</button>`).join('')}</div><div id="fb"></div>`;
+  $('#spk').onclick = () => speak(F(it), FL(it));
+  const pick = k => {
+    if (done) return; done = true;
+    $$('.opt').forEach((b, j) => { b.disabled = true; if (opts[j] === correct) b.classList.add('right'); else if (j === k) b.classList.add('wrong'); });
+    cb(opts[k] === correct, opts[k]);
+  };
+  $$('.opt').forEach(b => b.onclick = () => pick(+b.dataset.k));
+  keyHandler = e => { const n = +e.key; if (n >= 1 && n <= opts.length) pick(n - 1); };
+}
+function askWrite(it, cb) {
+  stage.innerHTML = `
+    <div class="card"><small class="muted">Напишите ответ</small><button class="icon spk" id="spk">🔊</button><div class="front" style="margin-top:6px">${esc(F(it))}</div></div>
+    <form class="wf" id="wf"><input id="wi" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ваш ответ…" lang="${BL(it)}"><button class="btn primary">Ответить</button></form>
+    <button class="link" id="dk">Не знаю</button><div id="fb"></div>`;
+  $('#spk').onclick = () => speak(F(it), FL(it));
+  const wi = $('#wi'); wi.focus(); keyHandler = null;
+  const finish = once(val => { wi.disabled = true; $('#wf button').disabled = true; $('#dk').remove(); cb(val ? check(val, B(it)) : 'wrong', val); });
+  $('#wf').onsubmit = e => { e.preventDefault(); if (wi.value.trim()) finish(wi.value.trim()); };
+  $('#dk').onclick = () => finish('');
+}
+// Показывает результат ответа; next — переход дальше; override — «я ответил правильно»
+function feedback(result, it, typed, next, override) {
+  const fb = $('#fb'), go = once(next);
+  if (result === 'right') { fb.innerHTML = `<div class="fbx ok">Верно! 👍</div>`; keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } }; later(go, 900); return; }
+  fb.innerHTML = (result === 'almost'
+      ? `<div class="fbx warn">Почти! Засчитано, но проверьте написание: <b>${esc(B(it))}</b></div>`
+      : `<div class="fbx bad">Правильный ответ: <b>${esc(B(it))}</b>${typed ? `<br><span style="opacity:.8">Ваш ответ: ${esc(typed)}</span>` : ''}</div>`)
+    + `<div class="row"><button class="btn primary" id="nx">Продолжить <small>(Enter)</small></button>${result === 'wrong' && override && typed ? '<button class="btn" id="ov">Я ответил(а) правильно</button>' : ''}</div>`;
+  $('#nx').onclick = go;
+  if ($('#ov')) $('#ov').onclick = () => { override(); go(); };
+  later(() => $('#nx')?.focus(), 0);
+  keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
+}
+
+/* --- 3. Заучивание (варианты → письмо → освоено) --- */
+function runLearn(items) {
+  const pool = shuffle(items).map(it => ({ it, lvl: 0 }));   // 0 — выбор, 1 — письмо, 2 — освоено
+  let round = [], ri = 0, rn = 0, correctInRound = 0;
+  const canMC = new Set(items.map(B)).size >= 2;
+  const progress = () => { const m = pool.filter(p => p.lvl >= 2).length; setProg(`Освоено ${m} из ${pool.length}`); setBar((pool.reduce((a, p) => a + p.lvl, 0)) / (pool.length * 2)); };
+  function newRound() {
+    const left = pool.filter(p => p.lvl < 2);
+    if (!left.length) return doneScreen('🏆', 'Все термины освоены!', `<p class="muted">Вы прошли ${plural(pool.length, ['термин', 'термина', 'терминов'])} за ${rn} ${rn === 1 ? 'раунд' : rn < 5 ? 'раунда' : 'раундов'}.</p>`,
+      `<button class="btn primary" onclick="router()">Ещё раз</button><a class="btn" href="${backHref}">К набору</a>`);
+    round = shuffle(left.slice(0, 7)); ri = 0; rn++; correctInRound = 0; ask();
+  }
+  function ask() {
+    progress();
+    if (ri >= round.length) {
+      return doneScreen('💪', `Раунд ${rn} завершён`, `<p>Правильно: ${correctInRound} из ${round.length}</p><p class="muted">Освоено ${pool.filter(p => p.lvl >= 2).length} из ${pool.length}</p>`, `<button class="btn primary" id="cont">Продолжить <small>(Enter)</small></button>`)
+        , $('#cont').onclick = newRound, $('#cont').focus(), keyHandler = e => { if (e.key === 'Enter') { e.preventDefault(); newRound(); } };
+    }
+    const p = round[ri];
+    const handle = (ok, typed, res) => {
+      const before = p.lvl;
+      p.lvl = ok ? p.lvl + 1 : 0; if (ok) correctInRound++; logReview(); save(); progress();
+      feedback(res, p.it, typed, () => { ri++; ask(); }, () => { p.lvl = Math.min(2, before + 1); correctInRound++; });
+    };
+    if (p.lvl === 0 && canMC) askMC(p.it, items, (ok, picked) => handle(ok, picked, ok ? 'right' : 'wrong'));
+    else askWrite(p.it, (res, typed) => handle(res !== 'wrong', typed, res));
+  }
+  newRound();
+}
+
+/* --- 4. Письмо --- */
+function runWrite(items) {
+  let deck = shuffle(items), i = 0, wrong = [];
+  function next() {
+    setProg(`${Math.min(i + 1, deck.length)} / ${deck.length}`); setBar(i / deck.length);
+    if (i >= deck.length) {
+      const ok = deck.length - wrong.length;
+      return doneScreen(wrong.length ? '📘' : '🌟', `Результат: ${Math.round(ok / deck.length * 100)}%`,
+        `<p>Правильно ${ok} из ${deck.length}</p>${wrong.length ? `<div class="mist"><b>Ошибки:</b>${wrong.map(x => `<div><b>${esc(F(x))}</b> — ${esc(B(x))}</div>`).join('')}</div>` : ''}`,
+        `${wrong.length ? '<button class="btn primary" id="again">Повторить ошибки</button>' : ''}<button class="btn" id="restart">Заново</button><a class="btn" href="${backHref}">К набору</a>`),
+        wrong.length && ($('#again').onclick = () => { deck = shuffle(wrong); wrong = []; i = 0; next(); }),
+        $('#restart').onclick = () => { deck = shuffle(items); wrong = []; i = 0; next(); };
+    }
+    const it = deck[i];
+    askWrite(it, (res, typed) => {
+      if (res === 'wrong') wrong.push(it); logReview(); save();
+      feedback(res, it, typed, () => { i++; next(); }, () => { wrong = wrong.filter(x => x !== it); });
+    });
+  }
+  next();
+}
+
+/* --- 5. Тест --- */
+function runTest(items) {
+  const max = items.length, canMC = new Set(items.map(B)).size >= 2;
+  setProg('');
+  stage.innerHTML = `
+    <div class="panel setup"><h3>Настройки теста</h3>
+      <label>Вопросов: <input type="number" id="tn" min="1" max="${max}" value="${Math.min(20, max)}"> <span class="muted">из ${max}</span></label>
+      <label><input type="checkbox" id="t_mc" ${canMC ? 'checked' : 'disabled'}> Выбор из вариантов</label>
+      <label><input type="checkbox" id="t_tf" ${canMC ? 'checked' : 'disabled'}> Верно / неверно</label>
+      <label><input type="checkbox" id="t_w" checked> Письменный ответ</label>
+      <button class="btn primary" id="go">Начать тест</button></div>`;
+  $('#go').onclick = () => {
+    const n = Math.max(1, Math.min(max, +$('#tn').value || max));
+    const types = ['mc', 'tf', 'w'].filter(t => $('#t_' + t).checked);
+    if (!types.length) return toast('Выберите хотя бы один тип вопросов');
+    build(n, types);
+  };
+  function build(n, types) {
+    const qs = shuffle(items).slice(0, n).map(it => {
+      const q = { it, t: types[Math.random() * types.length | 0] };
+      if (q.t === 'mc') q.opts = mcOptions(it, items);
+      if (q.t === 'tf') { const others = items.filter(x => B(x) !== B(it)); q.shown = Math.random() < .5 || !others.length ? B(it) : B(others[Math.random() * others.length | 0]); q.truth = q.shown === B(it); }
+      return q;
+    });
+    const label = { mc: 'Выберите ответ', tf: 'Верно или неверно?', w: 'Напишите ответ' };
+    stage.innerHTML = `<form id="tf">${qs.map((q, i) => `
+      <div class="tq" id="q${i}"><div class="qh">${i + 1} из ${qs.length} · ${label[q.t]}</div><div class="qp">${esc(F(q.it))}</div>
+        ${q.t === 'mc' ? q.opts.map((o, k) => `<label class="ch"><input type="radio" name="a${i}" value="${k}"> ${esc(o)}</label>`).join('') : ''}
+        ${q.t === 'tf' ? `<div class="qs">${esc(q.shown)}</div><div class="row"><label class="ch"><input type="radio" name="a${i}" value="1"> Верно</label><label class="ch"><input type="radio" name="a${i}" value="0"> Неверно</label></div>` : ''}
+        ${q.t === 'w' ? `<input type="text" name="a${i}" autocomplete="off" spellcheck="false" placeholder="Ваш ответ">` : ''}
+        <div class="ans"></div></div>`).join('')}
+      <button class="btn primary wide">Проверить ответы</button></form>`;
+    setBar(0);
+    $('#tf').addEventListener('change', () => setBar(qs.filter((q, i) => { const el = $(`[name=a${i}]:checked`) || $(`input[type=text][name=a${i}]`); return el && (el.type !== 'text' || el.value.trim()); }).length / qs.length));
+    $('#tf').onsubmit = e => {
+      e.preventDefault(); let score = 0;
+      qs.forEach((q, i) => {
+        const box = $('#q' + i); let ok;
+        if (q.t === 'w') { const v = $(`[name=a${i}]`, box).value; ok = check(v, B(q.it)) !== 'wrong'; }
+        else { const r = $(`[name=a${i}]:checked`, box); ok = !!r && (q.t === 'mc' ? q.opts[+r.value] === B(q.it) : (r.value === '1') === q.truth); }
+        if (ok) score++;
+        box.classList.add(ok ? 'good' : 'badq');
+        $('.ans', box).innerHTML = ok ? '<span style="color:var(--ok)">✓ Верно</span>' : `<span style="color:var(--bad)">✕ Правильный ответ: <b>${esc(B(q.it))}</b></span>`;
+        $$('input', box).forEach(x => x.disabled = true);
+      });
+      const pct = Math.round(score / qs.length * 100);
+      $('#tf > button').remove();
+      stage.insertAdjacentHTML('afterbegin', `<div class="panel center" style="margin-bottom:14px"><div class="score" style="color:${pct >= 80 ? 'var(--ok)' : pct >= 50 ? 'var(--warn)' : 'var(--bad)'}">${pct}%</div>
+        <p>Правильно ${score} из ${qs.length}</p><div class="row" style="justify-content:center"><button class="btn primary" onclick="router()">Новый тест</button><a class="btn" href="${backHref}">К набору</a></div></div>`);
+      setBar(1); setProg(`${score} / ${qs.length}`); window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+  }
+}
+
+/* --- 6. Подбор пар --- */
+function runMatch(items, setId) {
+  const s = setId !== 'all' ? getSet(setId) : null;
+  if (items.length < 2) { stage.innerHTML = `<div class="panel center">Для игры нужно минимум 2 карточки.</div>`; return; }
+  intro();
+  function intro(extra = '') {
+    setProg(''); setBar(0);
+    stage.innerHTML = `<div class="panel center">${extra || `<h3>Подбор пар</h3><p class="muted">Находите пары «термин — определение» как можно быстрее. За ошибку +1 секунда.</p>`}
+      ${s?.bestMatch ? `<p>🏅 Рекорд: <b>${(s.bestMatch / 1000).toFixed(1)} с</b></p>` : ''}<button class="btn primary" id="go">${extra ? 'Играть ещё' : 'Начать игру'}</button></div>`;
+    $('#go').onclick = start; $('#go').focus();
+  }
+  function start() {
+    const pick = shuffle(items).slice(0, 6);
+    const tiles = shuffle(pick.flatMap((it, k) => [{ k, txt: it.c.term }, { k, txt: it.c.def }]));
+    let sel = null, left = pick.length, pen = 0; const t0 = Date.now();
+    stage.innerHTML = `<div class="mgrid">${tiles.map((t, i) => `<button class="tile2" data-i="${i}">${esc(t.txt)}</button>`).join('')}</div>`;
+    const tm = setInterval(() => setProg('⏱ ' + ((Date.now() - t0 + pen) / 1000).toFixed(1) + ' с'), 100); timers.push(tm);
+    stage.onclick = e => {
+      const el = e.target.closest('.tile2'); if (!el || el.classList.contains('gone')) return;
+      const i = +el.dataset.i;
+      if (sel === null) { sel = i; el.classList.add('sel'); return; }
+      if (sel === i) { el.classList.remove('sel'); sel = null; return; }
+      const prev = stage.querySelector(`[data-i="${sel}"]`);
+      if (tiles[sel].k === tiles[i].k) {
+        prev.classList.add('gone'); el.classList.add('gone'); left--; setBar(1 - left / pick.length);
+        if (!left) finish();
+      } else {
+        pen += 1000; [prev, el].forEach(x => { x.classList.add('err'); later(() => x.classList.remove('err', 'sel'), 400); });
+      }
+      sel = null;
+    };
+    function finish() {
+      clearInterval(tm); stage.onclick = null;
+      const t = Date.now() - t0 + pen; let rec = false;
+      if (s && (!s.bestMatch || t < s.bestMatch)) { s.bestMatch = t; rec = true; save(); }
+      intro(`<div class="big" style="font-size:48px">${rec ? '🏅' : '⚡'}</div><h2>${(t / 1000).toFixed(1)} с</h2>${rec ? '<p style="color:var(--ok)">Новый рекорд!</p>' : ''}`);
+    }
+  }
+}
+
+/* ========== Старт ========== */
+applyTheme();
+if ('speechSynthesis' in window) speechSynthesis.getVoices();
+router();
+</script>
+</body>
+</html>
